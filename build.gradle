@@ -1,0 +1,62 @@
+buildscript {
+	ext {
+		springBootVersion = '1.5.2.RELEASE'
+	}
+	repositories {
+		mavenCentral()
+		maven { url "https://repo.spring.io/snapshot" }
+		maven { url "https://repo.spring.io/milestone" }
+	}
+	dependencies {
+		classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+	}
+}
+
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'org.springframework.boot'
+
+jar {
+	baseName = 'hystrix-test'
+	version = '0.0.1-SNAPSHOT'
+}
+
+sourceCompatibility = 1.8
+
+repositories {
+	mavenCentral()
+	maven { url "https://repo.spring.io/snapshot" }
+	maven { url "https://repo.spring.io/milestone" }
+}
+
+
+dependencies {
+	compile('org.springframework.boot:spring-boot-starter-web')
+	compile group: 'org.springframework.boot', name: 'spring-boot-starter-undertow'
+	compile('org.springframework.boot:spring-boot-starter-cache')
+	compile('org.springframework.cloud:spring-cloud-starter-hystrix')
+	compile('org.springframework.cloud:spring-cloud-starter-hystrix-dashboard')
+	// https://mvnrepository.com/artifact/com.hazelcast/hazelcast-spring
+	compile group: 'com.hazelcast', name: 'hazelcast', version: '3.8'
+	compile group: 'com.hazelcast', name: 'hazelcast-spring', version: '3.8'
+	compile group: 'com.hazelcast', name: 'hazelcast-client', version: '3.8'
+
+//	compile group: 'org.springframework.data', name: 'spring-data-gemfire', version: '1.9.1.RELEASE'
+
+//	compile('org.springframework.cloud:spring-cloud-stream-binder-kafka')
+//	compile('org.springframework.cloud:spring-cloud-starter-stream-rabbit')
+//	compile('org.springframework.cloud:spring-cloud-starter-turbine')
+	compile('org.springframework.boot:spring-boot-starter-data-redis')
+	compile('org.springframework.boot:spring-boot-starter-data-gemfire')
+//	compileOnly('org.springframework.boot:spring-boot-configuration-processor')
+	compileOnly('org.projectlombok:lombok')
+	compile group: 'io.reactivex.rxjava2', name: 'rxjava', version: '2.0.7'
+
+	testCompile('org.springframework.boot:spring-boot-starter-test')
+}
+
+dependencyManagement {
+	imports {
+		mavenBom "org.springframework.cloud:spring-cloud-dependencies:Dalston.BUILD-SNAPSHOT"
+	}
+}
