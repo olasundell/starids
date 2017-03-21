@@ -37,7 +37,7 @@ public class ServiceImpl implements Service {
 		return Observable.just(actuallyGetModel(id));
 	}
 
-	@Cacheable(cacheNames = {"yodel"}, key = "#id", sync = true)
+	@Cacheable(cacheNames = "yodel", key = "#id", sync = true)
 	public Model actuallyGetModel(final Integer id) {
 		logger.info("Getting model {}", id);
 		try {

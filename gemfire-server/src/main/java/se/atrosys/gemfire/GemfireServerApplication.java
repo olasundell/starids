@@ -156,6 +156,8 @@ public class GemfireServerApplication {
 		RegionAttributesFactoryBean modelsRegionAttributes = new RegionAttributesFactoryBean();
 
 //		modelsRegionAttributes.setCacheLoader(modelsCacheLoader());
+		modelsRegionAttributes.setConcurrencyChecksEnabled(true);
+		modelsRegionAttributes.setConcurrencyLevel(32);
 		modelsRegionAttributes.setKeyConstraint(Integer.class);
 		modelsRegionAttributes.setValueConstraint(Model.class);
 

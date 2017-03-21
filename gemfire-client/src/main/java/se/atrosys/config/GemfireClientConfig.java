@@ -1,6 +1,7 @@
 package se.atrosys.config;
 
 import com.gemstone.gemfire.cache.GemFireCache;
+import com.gemstone.gemfire.cache.RegionAttributes;
 import com.gemstone.gemfire.cache.client.ClientCache;
 import com.gemstone.gemfire.cache.client.ClientRegionShortcut;
 import com.gemstone.gemfire.cache.client.Pool;
@@ -13,6 +14,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
+import org.springframework.data.gemfire.RegionAttributesFactoryBean;
 import org.springframework.data.gemfire.client.ClientCacheFactoryBean;
 import org.springframework.data.gemfire.client.ClientRegionFactoryBean;
 import org.springframework.data.gemfire.client.PoolFactoryBean;
@@ -112,7 +114,9 @@ public class GemfireClientConfig {
 
 	@Bean
 	@DependsOn("gemfireCache")
-	public ClientRegionFactoryBean<Integer, Model> yodelRegion(ClientCache gemfireCache, Pool gemfirePool) {
+	public ClientRegionFactoryBean<Integer, Model> yodelRegion(ClientCache gemfireCache, Pool gemfirePool,
+	                                                           RegionAttributes<Integer, Model> regionAttributes
+	                                                           ) {
 //	public ClientRegionFactoryBean<Integer, Model> yodelRegion(ClientCache gemfireCache) {
 		ClientRegionFactoryBean<Integer, Model> region = new ClientRegionFactoryBean<>();
 
@@ -120,19 +124,33 @@ public class GemfireClientConfig {
 		region.setName("yodel");
 		region.setPool(gemfirePool);
 		region.setShortcut(ClientRegionShortcut.PROXY);
+		region.setAttributes(regionAttributes);
 
 		return region;
 	}
 
 	@Bean
+	public RegionAttributesFactoryBean regionAttributesFactoryBean() {
+		final RegionAttributesFactoryBean regionAttributesFactoryBean = new RegionAttributesFactoryBean();
+
+		regionAttributesFactoryBean.setConcurrencyChecksEnabled(true);
+		regionAttributesFactoryBean.setConcurrencyLevel(32);
+
+		return regionAttributesFactoryBean;
+	}
+
+	@Bean
 	@DependsOn("gemfireCache")
-	public ClientRegionFactoryBean<Integer, Model> modelRegion(ClientCache gemfireCache, Pool gemfirePool) {
+	public ClientRegionFactoryBean<Integer, Model> modelRegion(ClientCache gemfireCache, Pool gemfirePool,
+	                                                           RegionAttributes<Integer, Model> regionAttributes
+	                                                           ) {
 //	public ClientRegionFactoryBean<Integer, Model> modelRegion(ClientCache gemfireCache) {
 		ClientRegionFactoryBean<Integer, Model> region = new ClientRegionFactoryBean<>();
 
 		region.setCache(gemfireCache);
 		region.setName("model");
 		region.setPool(gemfirePool);
+		region.setAttributes(regionAttributes);
 		region.setShortcut(ClientRegionShortcut.PROXY);
 
 		return region;
