@@ -1,0 +1,4 @@
+include 'gemfire-server'
+include 'common'
+include 'gemfire-client'
+

@@ -3,6 +3,7 @@ package se.atrosys.system;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.web.client.RestTemplate;
+import se.atrosys.model.Model;
 
 import java.util.Arrays;
 import java.util.List;
@@ -13,7 +14,8 @@ import java.util.concurrent.TimeUnit;
  * TODO write documentation
  */
 public class SystemTest {
-	private final List<String> servers = Arrays.asList("http://localhost:8080", "http://localhost:8081", "http://localhost:8082");
+//	private final List<String> servers = Arrays.asList("http://localhost:8080", "http://localhost:8081", "http://localhost:8082");
+	private final List<String> servers = Arrays.asList("http://localhost:8090");
 	@Test
 	public void shouldGet() throws InterruptedException {
 		RestTemplate restTemplate = new RestTemplate();

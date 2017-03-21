@@ -16,10 +16,10 @@ import static freemarker.template.utility.Collections12.singletonList;
 /**
  * TODO write documentation
  */
-@Configuration
+//@Configuration
 public class HazelcastClusterConfig {
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
-	@Bean
+//	@Bean
 	public Config hazelcastConfig() {
 //		return new Config("hcast"); // Set up any non-default config here
 		logger.info("Creating hazelcast config bean");

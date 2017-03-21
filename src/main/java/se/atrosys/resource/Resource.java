@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import se.atrosys.model.Model;
 import se.atrosys.service.Service;
 
 /**
@@ -33,11 +34,6 @@ public class Resource {
 //	public Observable<String> resource(@PathVariable @CacheKey Integer id) {
 	public Observable<String> resource(@PathVariable Integer id) {
 		return service.getString(id);
-	}
-
-	@RequestMapping("/times/{id}")
-	public Integer times(@PathVariable Integer id) {
-		return service.times(id);
 	}
 
 //	@HystrixCommand
