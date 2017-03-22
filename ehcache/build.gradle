@@ -1,0 +1,16 @@
+version 'unspecified'
+
+apply plugin: 'java'
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+	compile project(":common")
+	compile group: 'org.ehcache', name: 'ehcache-clustered', version: '3.3.0'
+//	compile group: 'org.ehcache', name: 'jcache', version: '1.0.1'
+	compile group: 'javax.cache', name: 'cache-api'
+}

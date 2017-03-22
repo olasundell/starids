@@ -2,4 +2,7 @@ dependencies {
 	compile project(":common")
 	compile project(path: ":common", configuration: "testCompile")
 	compile group: 'biz.paluch.redis', name: 'lettuce', version: '4.3.1.Final'
+	compile group: 'com.hazelcast', name: 'hazelcast', version: '3.8'
+	compile group: 'com.hazelcast', name: 'hazelcast-spring', version: '3.8'
+	compile group: 'com.hazelcast', name: 'hazelcast-client', version: '3.8'
 }

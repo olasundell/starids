@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+    <jmxConfigurator />
+
+    <logger name="se.atrosys" level="DEBUG"/>
+    <statusListener class="ch.qos.logback.core.status.OnConsoleStatusListener" />
+
+    <include resource="org/springframework/boot/logging/logback/defaults.xml" />
+    <include resource="org/springframework/boot/logging/logback/console-appender.xml" />
+
+    <appender name="ASYNC" class="ch.qos.logback.classic.AsyncAppender">
+        <queueSize>512</queueSize>
+        <!-- Threshold at 20% -->
+        <discardingThreshold>102</discardingThreshold>
+        <includeCallerData>true</includeCallerData>
+        <maxFlushTime>1000</maxFlushTime>
+        <appender-ref ref="CONSOLE" />
+    </appender>
+
+    <root level="INFO">
+        <appender-ref ref="ASYNC" />
+    </root>
+</configuration>

@@ -10,9 +10,6 @@ dependencies {
 	compile('org.springframework.cloud:spring-cloud-starter-hystrix')
 	compile('org.springframework.cloud:spring-cloud-starter-hystrix-dashboard')
 	// https://mvnrepository.com/artifact/com.hazelcast/hazelcast-spring
-	compile group: 'com.hazelcast', name: 'hazelcast', version: '3.8'
-	compile group: 'com.hazelcast', name: 'hazelcast-spring', version: '3.8'
-	compile group: 'com.hazelcast', name: 'hazelcast-client', version: '3.8'
 
 //	compile group: 'org.springframework.data', name: 'spring-data-gemfire', version: '1.9.1.RELEASE'
 
