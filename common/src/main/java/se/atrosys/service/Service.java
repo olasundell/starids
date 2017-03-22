@@ -11,5 +11,4 @@ public interface Service {
 	Integer times(Integer id);
 	Observable<Model> getModel(Integer id);
 	Integer modelTimes(Integer id);
-	Model actuallyGetModel(final Integer id);
 }

@@ -15,7 +15,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class SystemTest {
 //	private final List<String> servers = Arrays.asList("http://localhost:8080", "http://localhost:8081", "http://localhost:8082");
-	private final List<String> servers = Arrays.asList("http://localhost:8090");
+	private final List<String> servers = Arrays.asList("http://localhost:8080");
 	@Test
 	public void shouldGet() throws InterruptedException {
 		RestTemplate restTemplate = new RestTemplate();
@@ -29,7 +29,7 @@ public class SystemTest {
 		for (int i = 0 ; i < 15 ; i++) {
 			final int i2 = i;
 
-			pool.submit(() -> {
+			pool.execute(() -> {
 				String result = restTemplate.getForObject(servers.get(i2 % 3) + "/resource/1", String.class);
 			});
 		}

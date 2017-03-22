@@ -1,6 +1,7 @@
 package se.atrosys.system;
 
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,15 +22,30 @@ public class SyncTest {
 
 	private static final int ID = 6;
 	public static final String ID_STR = String.valueOf(ID);
-	private final List<String> servers = Arrays.asList("http://localhost:8090", "http://localhost:8081", "http://localhost:8082");
+//	private final List<String> servers = Arrays.asList("http://localhost:8090", "http://localhost:8081", "http://localhost:8082");
+	private final List<String> servers = Arrays.asList("http://localhost:8080");
+	private RestTemplate restTemplate;
+
+	@Before
+	public void setUp() throws Exception {
+		restTemplate = new RestTemplate();
+	}
+
+	@Test
+
+	public void shouldGetModelOnce() {
+		restTemplate.getForObject(servers.get(0) + "/purge/" + ID_STR, Void.class);
+		final Model model = restTemplate.getForObject(servers.get(0) + "/model/" + ID_STR, Model.class);
+		assertModel(model);
+	}
 
 	@Test
 	public void shouldGetModel() throws InterruptedException {
 		final List<Model> models = new CopyOnWriteArrayList<>();
 		final List<Model> canaries = new CopyOnWriteArrayList<>();
-		RestTemplate restTemplate = new RestTemplate();
 
 		restTemplate.getForObject(servers.get(0) + "/purge/" + ID_STR, Void.class);
+//		restTemplate.getForObject(servers.get(0) + "/purgeall/", Void.class);
 
 		int oldSum = summate(restTemplate);
 
@@ -49,17 +65,19 @@ public class SyncTest {
 
 		Assert.assertEquals("Should have gotten the correct amount of results", 15, models.size());
 
-		models.forEach(model -> {
-			Assert.assertNotNull(model);
-			Assert.assertEquals(ID, model.getId().intValue());
-			Assert.assertEquals(ID_STR, model.getValue());
-		});
+		models.forEach(this::assertModel);
 
 
 		int sum = summate(restTemplate);
 
 		Assert.assertEquals("Should only have called once", oldSum + 1, sum);
 
+	}
+
+	private void assertModel(Model model) {
+		Assert.assertNotNull(model);
+		Assert.assertEquals(ID, model.getId().intValue());
+		Assert.assertEquals(ID_STR, model.getValue());
 	}
 
 	private int summate(RestTemplate restTemplate) {

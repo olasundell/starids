@@ -28,8 +28,9 @@ public class ModelResource {
 	public Observable<Model> resourceModel(@PathVariable Integer id) {
 //		return service.getModel(id); //.single(Model.builder().build());
 		logger.info("Getting model {}", id);
-		final Model model = service.actuallyGetModel(id);
-		return Observable.just(model);
+//		final Model model = service.getModel(id);
+		return service.getModel(id);
+//		return Observable.just(model);
 	}
 
 	@RequestMapping(value = "/modeltimes/{id}")

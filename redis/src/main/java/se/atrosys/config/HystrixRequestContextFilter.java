@@ -15,7 +15,7 @@ import java.io.IOException;
 /**
  * TODO write documentation
  */
-@Component
+//@Component
 public class HystrixRequestContextFilter implements Filter {
 	@Override
 	public void init(FilterConfig filterConfig) throws ServletException {
