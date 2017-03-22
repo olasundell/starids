@@ -13,4 +13,8 @@ dependencies {
 	compile group: 'org.ehcache', name: 'ehcache-clustered', version: '3.3.0'
 //	compile group: 'org.ehcache', name: 'jcache', version: '1.0.1'
 	compile group: 'javax.cache', name: 'cache-api'
+	// https://mvnrepository.com/artifact/org.infinispan/infinispan-jcache
+	compile group: 'org.infinispan', name: 'infinispan-jcache', version: '8.2.6.Final'
+
+
 }

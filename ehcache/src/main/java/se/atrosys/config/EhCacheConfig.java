@@ -24,7 +24,7 @@ import java.util.List;
 /**
  * TODO write documentation
  */
-@Configuration
+//@Configuration
 public class EhCacheConfig {
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 /*	@Bean
@@ -53,8 +53,8 @@ public class EhCacheConfig {
 		return cacheManager;
 	}*/
 
-	@Bean
-	@DependsOn("eh107CacheManager")
+//	@Bean
+//	@DependsOn("eh107CacheManager")
 	public CacheManager cacheManager(javax.cache.CacheManager cacheManager) {
 		logger.info("Creating spring cache manager");
 		final JCacheCacheManager jcacheManager = new JCacheCacheManager();
