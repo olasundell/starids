@@ -3,4 +3,5 @@ include 'common'
 include 'gemfire-client'
 include 'redis'
 include 'ehcache'
+include 'eureka-server'
 

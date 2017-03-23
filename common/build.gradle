@@ -17,7 +17,6 @@ dependencies {
 //	compile('org.springframework.cloud:spring-cloud-starter-stream-rabbit')
 //	compile('org.springframework.cloud:spring-cloud-starter-turbine')
 //		compile('org.springframework.boot:spring-boot-starter-data-redis')
-	compile group: 'org.springframework.data', name: 'spring-data-redis'
 	compile('org.springframework.boot:spring-boot-starter-data-gemfire')
 //		compile group: 'com.gemstone.gemfire', name: 'gemfire', version: '9.0.2'
 //	compileOnly('org.springframework.boot:spring-boot-configuration-processor')

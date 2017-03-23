@@ -1,0 +1,7 @@
+spring:
+  application:
+    name: hcast
+eureka:
+  client:
+    service-url:
+      defaultZone: http://ola.byod.svt.se:8761/eureka/
