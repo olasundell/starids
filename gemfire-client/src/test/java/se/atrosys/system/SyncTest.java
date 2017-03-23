@@ -22,8 +22,9 @@ public class SyncTest {
 
 	private static final int ID = 6;
 	public static final String ID_STR = String.valueOf(ID);
-	private final List<String> servers = Arrays.asList("http://localhost:8080", "http://localhost:8081", "http://localhost:8082");
+//	private final List<String> servers = Arrays.asList("http://localhost:8080", "http://localhost:8081", "http://localhost:8082");
 //	private final List<String> servers = Arrays.asList("http://localhost:8080");
+	private final List<String> servers = Arrays.asList("http://localhost:8020", "http://localhost:8021", "http://localhost:8022");
 //	private final List<String> servers = Arrays.asList("http://localhost:8050");
 //	private final List<String> servers = Arrays.asList("http://localhost:8050", "http://localhost:8051", "http://localhost:8052");
 	private RestTemplate restTemplate;

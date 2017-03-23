@@ -1,0 +1,33 @@
+buildscript {
+    repositories {
+        jcenter()
+    }
+
+    dependencies {
+        classpath 'se.transmode.gradle:gradle-docker:1.2'
+    }
+}
+apply plugin: 'docker'
+
+dependencies {
+    compile project(":common")
+    compile project(path: ":common", configuration: "testCompile")
+    compile group: 'com.hazelcast', name: 'hazelcast', version: '3.7.6'
+    compile group: 'com.hazelcast', name: 'hazelcast-spring', version: '3.7.6'
+    compile group: 'com.hazelcast', name: 'hazelcast-client', version: '3.7.6'
+    compile group: 'com.hazelcast', name: 'spring-data-hazelcast', version: '1.0'
+//	compile('org.springframework.cloud:spring-cloud-starter-eureka')
+}
+
+task buildDocker(type: Docker, dependsOn: build) {
+    push = true
+    applicationName = jar.baseName
+    dockerfile = file('Dockerfile')
+    doFirst {
+        copy {
+            from jar
+            into stageDir
+        }
+    }
+}
+
