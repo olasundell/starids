@@ -16,6 +16,7 @@ dependencies {
 	compile group: 'com.hazelcast', name: 'hazelcast-spring', version: '3.7.6'
 	compile group: 'com.hazelcast', name: 'hazelcast-client', version: '3.7.6'
 	compile group: 'com.hazelcast', name: 'spring-data-hazelcast', version: '1.0'
+	compile group: 'org.springframework.boot', name: 'spring-boot-starter-actuator'
 //	compile('org.springframework.cloud:spring-cloud-starter-eureka')
 }
 

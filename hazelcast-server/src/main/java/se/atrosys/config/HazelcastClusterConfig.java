@@ -13,10 +13,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.env.Environment;
 
 import java.util.Collections;
+import java.util.List;
 
 /**
  * TODO write documentation
@@ -37,7 +39,7 @@ public class HazelcastClusterConfig {
 	@Bean
 //	@Bean(name = "cluster")
 //	public Config hazelcastConfig() {
-	public HazelcastInstance hazelcastInstance() {
+	public HazelcastInstance hazelcastInstance(List<String> members) {
 //		return new Config("hcast"); // Set up any non-default config here
 		logger.info("Creating hazelcast config bean");
 
@@ -55,7 +57,9 @@ public class HazelcastClusterConfig {
 		JoinConfig joinConfig = config.getNetworkConfig().getJoin();
 
 		joinConfig.getMulticastConfig().setEnabled(false);
-		joinConfig.getTcpIpConfig().setEnabled(true).setMembers(Collections.singletonList(environment.getProperty("spring.cloud.client.ipAddress", "127.0.0.1")));
+		joinConfig.getTcpIpConfig()
+				.setEnabled(true)
+				.setMembers(members);
 //		final String dockercloudServiceHostname = environment.getProperty("DOCKERCLOUD_SERVICE_HOSTNAME");
 //		logger.info("Setting hazelcast cluster members to {}", u);
 //		joinConfig.getTcpIpConfig().setEnabled(true).setMembers(discoveryClient.getInstances("HCAST").stream().map(ServiceInstance::getHost).collect(Collectors.toList()));
@@ -66,4 +70,18 @@ public class HazelcastClusterConfig {
 
 		return Hazelcast.getOrCreateHazelcastInstance(config);
 	}
+
+	@Bean(name = "members")
+	@Profile("docker")
+	@Primary
+	List<String> membersDocker() {
+		return Collections.singletonList("172.18.0.1-5");
+	}
+
+	@Bean(name = "members")
+	List<String> membersLocal() {
+//		return Collections.singletonList(environment.getProperty("spring.cloud.client.ipAddress", "127.0.0.1"));
+		return Collections.singletonList("127.0.0.1");
+	}
+
 }

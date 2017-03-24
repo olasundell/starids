@@ -1,0 +1,28 @@
+version: "3"
+
+services:
+  hcastserver:
+    image: hcast-server
+    ports:
+      - 5700-5800
+    networks:
+      - server
+    deploy:
+      replicas: 2
+  hcastclient:
+    image: hcast-client
+    networks:
+      - client
+      - server
+    depends_on:
+      - hcastserver
+    ports:
+      - 8080:8080
+    deploy:
+      replicas: 3
+
+networks:
+  client:
+    driver: overlay
+  server:
+    driver: overlay

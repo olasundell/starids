@@ -1,1 +1,18 @@
 server.port: 8020
+
+endpoints:
+  autoconfig.enabled: false
+  beans.enabled: false
+  configprops.enabled: false
+  dump.enabled: true
+  env.enabled: true
+  health.enabled: true
+  info.enabled: true
+  metrics.enabled: true
+  mappings.enabled: false
+  shutdown.enabled: false
+  trace.enabled: true
+  jolokia:
+    enabled: true
+    path: /jolokia
+    sensitive: true
