@@ -6,4 +6,5 @@ include 'ehcache'
 include 'eureka-server'
 include 'hazelcast-client'
 include 'hazelcast-server'
+include 'hazelcast-common'
 

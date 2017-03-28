@@ -13,10 +13,10 @@ dependencies {
 	compile project(":common")
 	compile project(path: ":common", configuration: "testCompile")
 	compile group: 'biz.paluch.redis', name: 'lettuce', version: '4.3.1.Final'
-	compile group: 'com.hazelcast', name: 'hazelcast', version: '3.8'
+//	compile group: 'com.hazelcast', name: 'hazelcast', version: '3.8'
 //	compile group: 'com.hazelcast', name: 'hazelcast-spring', version: '3.8'
 //	compile group: 'com.hazelcast', name: 'hazelcast-client', version: '3.8'
-//	compile group: 'org.springframework.data', name: 'spring-data-redis'
+	compile group: 'org.springframework.data', name: 'spring-data-redis'
 //	compile group: 'com.hazelcast', name: 'spring-data-hazelcast', version: '1.0'
 	compile('org.springframework.cloud:spring-cloud-starter-eureka')
 //	compile group: 'org.springframework.data', name: 'spring-data-hazelcast'

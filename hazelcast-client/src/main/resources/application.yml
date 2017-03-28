@@ -1,5 +1,19 @@
 server.port: 8020
 
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQL94Dialect
+        naming-strategy: org.hibernate.cfg.ImprovedNamingStrategy
+  datasource:
+    url: jdbc:postgresql://localhost/gaia
+    username: gaia
+    password: gaia
+    driver-class-name: org.postgresql.Driver
+
 endpoints:
   autoconfig.enabled: false
   beans.enabled: false

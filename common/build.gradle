@@ -20,7 +20,7 @@ dependencies {
 	compile('org.springframework.boot:spring-boot-starter-data-gemfire')
 //		compile group: 'com.gemstone.gemfire', name: 'gemfire', version: '9.0.2'
 //	compileOnly('org.springframework.boot:spring-boot-configuration-processor')
-	compileOnly('org.projectlombok:lombok')
+	compile('org.projectlombok:lombok')
 	compile group: 'io.reactivex.rxjava2', name: 'rxjava', version: '2.0.7'
 //		compile group: 'io.jmnarloch', name: 'rxjava-spring-boot-starter', version: '2.0.0'
 

@@ -11,12 +11,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.cache.CacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.DependsOn;
-import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
 
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -34,6 +30,7 @@ public class HazelcastClientConfig {
 		clientConfig.getGroupConfig().setName("hcast").setPassword("foobar");
 		clusterAddress.forEach(address -> clientConfig.getNetworkConfig().addAddress(address));
 		clientConfig.setSecurityConfig(new ClientSecurityConfig().setCredentials(new UsernamePasswordCredentials("hcast", "foobar")));
+		clientConfig.getNetworkConfig().setConnectionAttemptLimit(100);
 //		clientConfig.setSecurityConfig(null);
 
 		final HazelcastInstance hazelcastInstance = HazelcastClient.newHazelcastClient(clientConfig);

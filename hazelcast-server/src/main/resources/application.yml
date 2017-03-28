@@ -1,5 +1,6 @@
 server.port: 8010
 
+
 endpoints:
   autoconfig.enabled: false
   beans.enabled: false
@@ -16,3 +17,8 @@ endpoints:
     enabled: true
     path: /jolokia
     sensitive: true
+spring:
+  data:
+    jpa:
+      repositories:
+        enabled: false

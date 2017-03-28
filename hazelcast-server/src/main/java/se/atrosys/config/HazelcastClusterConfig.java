@@ -2,8 +2,10 @@ package se.atrosys.config;
 
 import com.hazelcast.config.Config;
 import com.hazelcast.config.EvictionPolicy;
+import com.hazelcast.config.InMemoryFormat;
 import com.hazelcast.config.JoinConfig;
 import com.hazelcast.config.MapConfig;
+import com.hazelcast.config.MaxSizeConfig;
 import com.hazelcast.config.SecurityConfig;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
@@ -26,14 +28,15 @@ import java.util.List;
 @Configuration
 public class HazelcastClusterConfig {
 	private final Environment environment;
-	private final DiscoveryClient discoveryClient;
+//	private final DiscoveryClient discoveryClient;
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	@Autowired
-	public HazelcastClusterConfig(Environment environment,
-	                              DiscoveryClient discoveryClient) {
+	public HazelcastClusterConfig(Environment environment) {
+//	public HazelcastClusterConfig(Environment environment,
+//	                              DiscoveryClient discoveryClient) {
 		this.environment = environment;
-		this.discoveryClient = discoveryClient;
+//		this.discoveryClient = discoveryClient;
 	}
 
 	@Bean
@@ -47,8 +50,17 @@ public class HazelcastClusterConfig {
 //				.addListenerConfig(new ListenerConfig())
 		;
 		config.getGroupConfig().setName("hcast").setPassword("foobar");
+		config.getManagementCenterConfig().setUrl("http://localhost:8099/mancenter").setEnabled(true);
 //		config.setSecurityConfig(new SecurityConfig().setEnabled(false));
 //		config.setSecurityConfig(new SecurityConfig().)
+		config.getMapConfigs().put("stars",
+				new MapConfig()
+						.getMapStoreConfig().setImplementation()
+						.setName("stars")
+						.setInMemoryFormat(InMemoryFormat.OBJECT)
+						.setMaxSizeConfig(new MaxSizeConfig(90, MaxSizeConfig.MaxSizePolicy.USED_HEAP_PERCENTAGE))
+						.setEvictionPolicy(EvictionPolicy.LRU)
+						.setTimeToLiveSeconds(2_400));
 		config.getMapConfigs().put("yodel",
 				new MapConfig()
 						.setName("yodel")

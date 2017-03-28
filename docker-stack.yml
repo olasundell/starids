@@ -9,6 +9,11 @@ services:
       - server
     deploy:
       replicas: 2
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 6
   hcastclient:
     image: hcast-client
     networks:
@@ -20,6 +25,11 @@ services:
       - 8080:8080
     deploy:
       replicas: 3
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 6
 
 networks:
   client:
