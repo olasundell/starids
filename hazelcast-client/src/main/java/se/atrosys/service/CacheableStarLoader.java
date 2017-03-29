@@ -5,10 +5,9 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.*;
 import se.atrosys.model.Star;
 import se.atrosys.model.StarId;
-import se.atrosys.repository.StarRepository;
+import se.atrosys.repository.jpa.StarRepository;
 
 import java.util.List;
 
@@ -33,8 +32,10 @@ public class CacheableStarLoader {
 		return repository.findAll(new PageRequest(0, count)).getContent();
 	}
 
-	@Cacheable(cacheNames = "stars", sync = true)
+//	@Cacheable(cacheNames = "starids", sync = true)
 	public Page<Long> getStarIds(Pageable pageable) {
-		return repository.readAllBy(pageable).map(StarId::getSourceId);
+//		repository.
+		return repository.findAll(pageable).map(Star::getSourceId);
+//		return repository.readAllBy(pageable).map(StarId::getSourceId);
 	}
 }

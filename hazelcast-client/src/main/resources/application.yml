@@ -8,11 +8,25 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQL94Dialect
         naming-strategy: org.hibernate.cfg.ImprovedNamingStrategy
+    database-platform: POSTGRESQL
+    database: postgresql
+#  datasource:
   datasource:
+#    hikari:
+#      driver-class-name: org.postgresql.Driver
+#      jdbc-url: jdbc:postgresql://localhost/gaia
+#      password: gaia
+#      username: gaia
+#      pool-name: gaia
+#      datasource
+#    username: gaia
+#    password: gaia
+    type: com.zaxxer.hikari.HikariDataSource
     url: jdbc:postgresql://localhost/gaia
     username: gaia
     password: gaia
     driver-class-name: org.postgresql.Driver
+    name: gaia
 
 endpoints:
   autoconfig.enabled: false

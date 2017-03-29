@@ -5,5 +5,9 @@ dependencies {
 	compile group: 'com.hazelcast', name: 'hazelcast-client', version: '3.7.6'
 	compile group: 'com.hazelcast', name: 'spring-data-hazelcast', version: '1.0'
 	compile group: 'org.springframework.boot', name: 'spring-boot-starter-actuator'
+//	compile group: 'org.springframework.boot', name: 'spring-boot-starter-cassandra'
+//	compile group: 'org.springframework.boot', name: 'spring-boot-starter-mongodb'
+	compile group: 'org.springframework.data', name: 'spring-data-mongodb'
+	compile group: 'org.springframework.data', name: 'spring-data-cassandra'
 	compile 'org.hibernate.javax.persistence:hibernate-jpa-2.1-api:1.0.0.Final'
 }

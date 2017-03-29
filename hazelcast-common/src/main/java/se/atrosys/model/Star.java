@@ -15,13 +15,17 @@ import java.io.Serializable;
  * TODO write documentation
  */
 @Entity
+@org.springframework.data.mongodb.core.mapping.Document
 @Builder
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "gaia_source")
+@org.springframework.data.cassandra.mapping.Table
 public class Star implements Serializable {
 	@Id
+	@org.springframework.data.annotation.Id
+	@org.springframework.data.cassandra.mapping.PrimaryKey
 	private Long sourceId;
 	@Column
 	private Long solutionId;

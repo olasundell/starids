@@ -1,6 +1,5 @@
 server.port: 8010
 
-
 endpoints:
   autoconfig.enabled: false
   beans.enabled: false
@@ -19,6 +18,11 @@ endpoints:
     sensitive: true
 spring:
   data:
+    cassandra:
+      keyspace-name: star
+      schema-action: CREATE_IF_NOT_EXISTS
     jpa:
       repositories:
         enabled: false
+
+

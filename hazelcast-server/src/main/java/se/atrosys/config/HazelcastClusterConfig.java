@@ -6,18 +6,18 @@ import com.hazelcast.config.InMemoryFormat;
 import com.hazelcast.config.JoinConfig;
 import com.hazelcast.config.MapConfig;
 import com.hazelcast.config.MaxSizeConfig;
-import com.hazelcast.config.SecurityConfig;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.env.Environment;
+import se.atrosys.store.StarMapStore;
 
 import java.util.Collections;
 import java.util.List;
@@ -42,7 +42,8 @@ public class HazelcastClusterConfig {
 	@Bean
 //	@Bean(name = "cluster")
 //	public Config hazelcastConfig() {
-	public HazelcastInstance hazelcastInstance(List<String> members) {
+	public HazelcastInstance hazelcastInstance(List<String> members,
+	                                           MapConfig starMap) {
 //		return new Config("hcast"); // Set up any non-default config here
 		logger.info("Creating hazelcast config bean");
 
@@ -53,12 +54,11 @@ public class HazelcastClusterConfig {
 		config.getManagementCenterConfig().setUrl("http://localhost:8099/mancenter").setEnabled(true);
 //		config.setSecurityConfig(new SecurityConfig().setEnabled(false));
 //		config.setSecurityConfig(new SecurityConfig().)
-		config.getMapConfigs().put("stars",
+		config.getMapConfigs().put("stars", starMap);
+		config.getMapConfigs().put("starids",
 				new MapConfig()
-						.getMapStoreConfig().setImplementation()
-						.setName("stars")
+						.setName("starids")
 						.setInMemoryFormat(InMemoryFormat.OBJECT)
-						.setMaxSizeConfig(new MaxSizeConfig(90, MaxSizeConfig.MaxSizePolicy.USED_HEAP_PERCENTAGE))
 						.setEvictionPolicy(EvictionPolicy.LRU)
 						.setTimeToLiveSeconds(2_400));
 		config.getMapConfigs().put("yodel",
@@ -81,6 +81,26 @@ public class HazelcastClusterConfig {
 		config.setProperty("hazelcast.logging.type","slf4j");
 
 		return Hazelcast.getOrCreateHazelcastInstance(config);
+	}
+
+	@Bean
+	@DependsOn("mongo")
+//	MapConfig starMap(StarMongoRepository starMongoRepository) {
+	MapConfig starMap(StarMapStore starMapStore){
+		final MapConfig stars = new MapConfig()
+				.setName("stars")
+				.setInMemoryFormat(InMemoryFormat.OBJECT)
+				.setMaxSizeConfig(new MaxSizeConfig(90, MaxSizeConfig.MaxSizePolicy.USED_HEAP_PERCENTAGE))
+				.setEvictionPolicy(EvictionPolicy.LRU)
+				.setTimeToLiveSeconds(2_400);
+
+		stars.getMapStoreConfig()
+				.setWriteDelaySeconds(1)
+				.setImplementation(starMapStore)
+				.setWriteBatchSize(10)
+				.setEnabled(true);
+
+		return stars;
 	}
 
 	@Bean(name = "members")
