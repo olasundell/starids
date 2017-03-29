@@ -3,12 +3,7 @@ package se.atrosys;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.type.MapLikeType;
-import com.fasterxml.jackson.databind.type.MapType;
-import com.fasterxml.jackson.databind.type.ReferenceType;
-import com.fasterxml.jackson.databind.type.TypeBase;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import org.junit.Assert;
 import org.junit.Test;
@@ -33,11 +28,8 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -56,11 +48,6 @@ public class HazelclientTest {
 
 	private final List<String> servers = Arrays.asList("http://localhost:8020", "http://localhost:8021", "http://localhost:8022");
 
-//	@Before
-//	public void setUp() throws Exception {
-//		restTemplate = new RestTemplate();
-//	}
-//
 	@Test
 	public void shouldGetStars() throws InterruptedException, IOException {
 		final int pageSize = 20;
@@ -71,8 +58,8 @@ public class HazelclientTest {
 		final AtomicInteger pageNum = new AtomicInteger(0);
 		final AtomicLong fetchedStars = new AtomicLong(0);
 
-		Map<Integer, Set<Long>> previousRun = readPreviousRun();
-		Map<Integer, Set<Long>> currentRun = new ConcurrentHashMap<>();
+		Map<Integer, List<Long>> previousRun = readPreviousRun();
+		Map<Integer, List<Long>> currentRun = new ConcurrentHashMap<>();
 
 		StopWatch stopWatch = new StopWatch();
 		stopWatch.start();
@@ -93,42 +80,28 @@ public class HazelclientTest {
 //					final Page<Long> body = pageResponse.getBody();
 					logger.info("Fetched ids for page {} (which we think is {}), got {}", body.getNumber(), j, body.getNumberOfElements());
 					assertPrevious(previousRun, body);
-					currentRun.put(j, new HashSet<>(body.getContent()));
+					currentRun.put(j, new ArrayList<>());
 					body.forEach(idQueue::offerLast);
 				}
 			});
 		}
 
 		ForkJoinPool pool = new ForkJoinPool(5);
-		for (int i = 0 ; i < 5 ; i++) {
-//			final int i2 = i;
-
+		for (;pageNum.get() * pageSize > MAX ;) {
+			final long id = idQueue.takeFirst();
 			pool.execute(() -> {
 				RestTemplate restTemplate = new RestTemplate();
-				for (;;) {
-					try {
-						if (idQueue.isEmpty() && pageNum.get() * pageSize > MAX) {
-							return;
-						}
-						final long id = idQueue.takeFirst();
-						final Star star = restTemplate.getForObject(servers.get(Math.toIntExact(fetchedStars.get() % servers.size())) + "/star/" + id, Star.class);
-						fetchedStars.getAndIncrement();
-//					logger.info("Got star {}", id);
-						stars.add(star);
-					} catch (InterruptedException e) {
-						logger.error("Interrupted!", e);
-					}
+				final long l1 = fetchedStars.get();
+
+				if (l1 % 100 == 0) {
+					logger.info("Current count {}", l1);
 				}
+
+				final Star star = restTemplate.getForObject(servers.get(Math.toIntExact(l1 % servers.size())) + "/star/" + id, Star.class);
+				stars.add(star);
+//					logger.info("Got star {}", id);
 			});
 		}
-
-		for (long f = 0; f < MAX; f = fetchedStars.get()) {
-//			if (f % 100 == 0) {
-			logger.info("Current count {}", f);
-//			}
-			Thread.sleep(1_000);
-		}
-
 
 		pool.shutdown();
 		idFetchPool.shutdown();
@@ -140,7 +113,7 @@ public class HazelclientTest {
 		writeCurrentRunToFileIfApplicable(currentRun);
 	}
 
-	private void assertPrevious(Map<Integer, Set<Long>> previousRun, Page<Long> body) {
+	private void assertPrevious(Map<Integer, List<Long>> previousRun, Page<Long> body) {
 		if (!previousRun.isEmpty()) {
 			Assert.assertTrue("Previous run does not contain page " + body.getNumber(),
 					previousRun.containsKey(body.getNumber()));
@@ -153,21 +126,17 @@ public class HazelclientTest {
 
 	@Test
 	public void shouldReadPreviousRun() throws IOException {
-		Map<Integer, Set<Long>> map = readPreviousRun();
+		Map<Integer, List<Long>> map = readPreviousRun();
 		Assert.assertNotNull(map);
 	}
 
-	private Map<Integer, Set<Long>> readPreviousRun() throws IOException {
+	private Map<Integer, List<Long>> readPreviousRun() throws IOException {
 		final ClassPathResource file = new ClassPathResource("previousrun.json");
 		if (file.exists()) {
 			final ObjectMapper mapper = new ObjectMapper();
 			final TypeFactory typeFactory = mapper.getTypeFactory();
-			Map<Integer, Set<Long>> map = mapper.readValue(file.getInputStream(),
-//					typeFactory.constructMapType(HashMap.class, ty)
-					new TypeReference<Map<Integer, Set<Long>>>() {
-					}
-			);
-//					new ParameterizedTypeReference<Map<Integer, List<Long>>>() { });
+			Map<Integer, List<Long>> map = mapper.readValue(file.getInputStream(),
+					new TypeReference<Map<Integer, List<Long>>>() { });
 			logger.info("Previous run data loaded, contains {} pages", map.size());
 			return map;
 		}
@@ -175,7 +144,7 @@ public class HazelclientTest {
 		return Collections.emptyMap();
 	}
 
-	private void writeCurrentRunToFileIfApplicable(Map<Integer, Set<Long>> map) throws IOException {
+	private void writeCurrentRunToFileIfApplicable(Map<Integer, List<Long>> map) throws IOException {
 		final ClassPathResource resource = new ClassPathResource("previousrun.json");
 		if (!resource.exists()) {
 			File file = new File("src/test/resources/" + resource.getFilename());
@@ -216,27 +185,6 @@ public class HazelclientTest {
 		return server + "/starids" + "?page=" + pageNum + "&size=" + pageSize;
 	}
 
-/*	@Data
-	@Builder
-	@JsonDeserialize(builder = PageableImpl.PageableImplBuilder.class)
-	public static class PageableImpl {
-		private int numberOfPages;
-		private boolean first;
-		private String sort;
-		private int totalPages;
-		private int number;
-		private List<Long> content;
-		private long totalElements;
-		private int size;
-		private boolean last;
-
-		@JsonPOJOBuilder(withPrefix = "")
-		public static class PageableImplBuilder {}
-	}*/
-
-//	@Data
-//	@Builder
-//	@JsonDeserialize(builder = RestResponsePage.RestResponsePageBuilder.class)
 	public static class RestResponsePage<T> extends PageImpl<T> {
 		private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -259,58 +207,5 @@ public class HazelclientTest {
 		public RestResponsePage() {
 			super(new ArrayList<T>());
 		}
-
-//		@JsonAnySetter
-//		public void set(List<Object> o) {
-//		}
-//
-//		@JsonPOJOBuilder(withPrefix = "")
-//		public static class RestResponsePageBuilder<T> {
-//			private final Logger logger = LoggerFactory.getLogger(this.getClass());
-//			@JsonAnySetter
-//			public void set(List<Object> o) {
-//				logger.info("{}", o);
-//			}
-//		}
 	}
-
-//		restTemplate.getForObject(servers.get(0) + "/purge/" + ID_STR, Void.class);
-//		restTemplate.getForObject(servers.get(0) + "/purgeall/", Void.class);
-
-//		int oldSum = summate(restTemplate);
-//
-//		ForkJoinPool pool = new ForkJoinPool(5);
-//		for (int i = 0 ; i < 15 ; i++) {
-//			final int i2 = i;
-//
-//			pool.execute(() -> {
-//				final model = restTemplate.getForObject(servers.get(i2 % servers.size()) + "/model/" + ID_STR, Model.class);
-//				logger.info("Got model {}", model);
-//				models.add(model);
-//			});
-//		}
-//
-//		pool.shutdown();
-//		pool.awaitTermination(3, TimeUnit.SECONDS);
-//
-//		Assert.assertEquals("Should have gotten the correct amount of results", 15, models.size());
-//
-//		models.forEach(this::assertModel);
-//
-//
-//		int sum = summate(restTemplate);
-//
-//		Assert.assertEquals("Should only have called once", oldSum + 1, sum);
-//
-//	}
-//
-//	private void assertModel(Model model) {
-//		Assert.assertNotNull(model);
-//		Assert.assertEquals(ID, model.getId().intValue());
-//		Assert.assertEquals(ID_STR, model.getValue());
-//	}
-//
-//	private int summate(RestTemplate restTemplate) {
-//		return servers.stream().mapToInt(s -> restTemplate.getForObject(s + "/modeltimes/" + ID_STR, Integer.class)).sum();
-//	}
 }
