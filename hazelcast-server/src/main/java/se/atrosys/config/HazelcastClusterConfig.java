@@ -84,8 +84,6 @@ public class HazelcastClusterConfig {
 	}
 
 	@Bean
-	@DependsOn("mongo")
-//	MapConfig starMap(StarMongoRepository starMongoRepository) {
 	MapConfig starMap(StarMapStore starMapStore){
 		final MapConfig stars = new MapConfig()
 				.setName("stars")

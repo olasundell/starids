@@ -15,7 +15,7 @@ import java.io.Serializable;
  * TODO write documentation
  */
 @Entity
-@org.springframework.data.mongodb.core.mapping.Document
+//@org.springframework.data.mongodb.core.mapping.Document
 @Builder
 @Data
 @NoArgsConstructor

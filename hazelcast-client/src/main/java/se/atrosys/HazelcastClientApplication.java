@@ -9,10 +9,7 @@ import org.springframework.boot.autoconfigure.data.mongo.MongoDataAutoConfigurat
 import org.springframework.boot.autoconfigure.data.mongo.MongoRepositoriesAutoConfiguration;
 import org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration;
 import org.springframework.cache.annotation.EnableCaching;
-import org.springframework.data.cassandra.repository.config.EnableCassandraRepositories;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
-import org.springframework.data.mongodb.MongoDbFactory;
-import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 
 /**
  * TODO write documentation
@@ -21,10 +18,10 @@ import org.springframework.data.mongodb.repository.config.EnableMongoRepositorie
 		exclude = {
 				CassandraAutoConfiguration.class,
 				CassandraDataAutoConfiguration.class,
-				CassandraRepositoriesAutoConfiguration.class,
-				MongoAutoConfiguration.class,
-				MongoDataAutoConfiguration.class,
-				MongoRepositoriesAutoConfiguration.class
+				CassandraRepositoriesAutoConfiguration.class
+//				MongoAutoConfiguration.class,
+//				MongoDataAutoConfiguration.class,
+//				MongoRepositoriesAutoConfiguration.class
 		}
 //		excludeName = {
 //		"org.springframework.boot.autoconfigure.cassandra.CassandraAutoConfiguration",

@@ -1,32 +1,11 @@
 package se.atrosys.config;
 
-import com.datastax.driver.core.Cluster;
-import com.mongodb.async.SingleResultCallback;
-import com.mongodb.connection.ClusterDescription;
-import com.mongodb.connection.ClusterSettings;
-import com.mongodb.connection.Server;
-import com.mongodb.selector.ServerSelector;
-import org.hibernate.jpa.internal.EntityManagerFactoryImpl;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceBuilder;
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.boot.orm.jpa.EntityManagerFactoryBuilder;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
-import org.springframework.data.cassandra.core.CassandraTemplate;
-import org.springframework.data.cassandra.repository.support.CassandraRepositoryFactoryBean;
-import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
-
-import javax.persistence.EntityManagerFactory;
-import javax.sql.DataSource;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * TODO write documentation
  */
-@Configuration
+//@Configuration
 public class JpaConfig {
 //	@Bean
 //	@Primary
