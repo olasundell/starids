@@ -6,6 +6,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,69 +39,65 @@ import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.stream.Collectors;
 
 /**
  * TODO write documentation
  */
 public class HazelclientTest {
-	public static final int MAX = 1_000;
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	private final List<String> servers = Arrays.asList("http://localhost:8020", "http://localhost:8021", "http://localhost:8022");
+	private Map<Integer, List<Long>> previousRun;
+	private Map<Integer, List<Long>> currentRun;
+	private AtomicInteger pageNum;
+	private AtomicLong fetchedStars;
+
+	private static final int PAGE_SIZE = 20;
+	private static final int MAX = 100_000;
+
+	@Before
+	public void setUp() throws Exception {
+		previousRun = readPreviousRun();
+		currentRun = new ConcurrentHashMap<>();
+		pageNum = new AtomicInteger(0);
+		fetchedStars = new AtomicLong(0);
+	}
+
+	@Test
+	public void shouldTestLinkedQueue() throws InterruptedException {
+		final BlockingDeque<Long> blockingDeque = new LinkedBlockingDeque<>(1);
+		blockingDeque.offerLast(1L);
+		Assert.assertFalse(blockingDeque.offerLast(1L, 100, TimeUnit.MILLISECONDS));
+	}
 
 	@Test
 	public void shouldGetStars() throws InterruptedException, IOException {
-		final int pageSize = 20;
 		final List<Star> stars = new CopyOnWriteArrayList<>();
-		final BlockingDeque<Long> idQueue = new LinkedBlockingDeque<>(pageSize * 5);
+		final BlockingDeque<Long> idQueue = new LinkedBlockingDeque<>(PAGE_SIZE * 5);
 
 		ForkJoinPool idFetchPool  = new ForkJoinPool(3);
-		final AtomicInteger pageNum = new AtomicInteger(0);
-		final AtomicLong fetchedStars = new AtomicLong(0);
-
-		Map<Integer, List<Long>> previousRun = readPreviousRun();
-		Map<Integer, List<Long>> currentRun = new ConcurrentHashMap<>();
 
 		StopWatch stopWatch = new StopWatch();
 		stopWatch.start();
 
 		for (int i = 0 ; i < 3 ; i++) {
 			idFetchPool.execute(() -> {
-				RestTemplate restTemplate = new RestTemplate();
-				for (;;) {
-					final int j = pageNum.getAndIncrement();
-					if (j * pageSize > MAX) {
-						return;
-					}
-					final String url = pageUrl(j, pageSize, servers.get(j % 3));
-					RequestEntity<String> requestEntity = new RequestEntity<>(HttpMethod.GET, URI.create(url));
-					ResponseEntity<RestResponsePage<Long>> pageResponse = restTemplate.exchange(requestEntity, new ParameterizedTypeReference<RestResponsePage<Long>>() {
-					});
-					final RestResponsePage<Long> body = pageResponse.getBody();
-//					final Page<Long> body = pageResponse.getBody();
-					logger.info("Fetched ids for page {} (which we think is {}), got {}", body.getNumber(), j, body.getNumberOfElements());
-					assertPrevious(previousRun, body);
-					currentRun.put(j, body.getContent());
-					body.forEach(idQueue::offerLast);
-				}
+				fetchIds(idQueue);
 			});
 		}
 
 		ForkJoinPool pool = new ForkJoinPool(5);
-		for (;pageNum.get() * pageSize > MAX ;) {
-			final long id = idQueue.takeFirst();
-			pool.execute(() -> {
-				RestTemplate restTemplate = new RestTemplate();
-				final long l1 = fetchedStars.get();
+		for (; fetchedStars.get() < MAX ;) {
+			final Long id = idQueue.pollFirst(3, TimeUnit.SECONDS);
 
-				if (l1 % 100 == 0) {
-					logger.info("Current count {}", l1);
-				}
-
-				final Star star = restTemplate.getForObject(servers.get(Math.toIntExact(l1 % servers.size())) + "/star/" + id, Star.class);
-				stars.add(star);
-//					logger.info("Got star {}", id);
-			});
+			if (id != null) {
+				pool.execute(() -> {
+					fetchStar(stars, id);
+				});
+			} else {
+				logger.warn("Timed out waiting for the head of the id queue");
+			}
 		}
 
 		pool.shutdown();
@@ -109,14 +106,77 @@ public class HazelclientTest {
 		idFetchPool.awaitTermination(10, TimeUnit.SECONDS);
 
 		stopWatch.stop();
-		logger.info("It took {} seconds, total fetched {}", stopWatch.getTotalTimeSeconds(), fetchedStars.get());
+		logger.info("It took {} seconds, total fetched {}", stopWatch.getTotalTimeSeconds(), stars.size());
+
+		assertCurrentRun(currentRun, stars);
+
 		writeCurrentRunToFileIfApplicable(currentRun);
+	}
+
+	private void assertCurrentRun(Map<Integer, List<Long>> currentRun, List<Star> stars) {
+		List<Long> retrievedIds = currentRun.values().stream().flatMap(List::stream).collect(Collectors.toList());
+		List<Long> actuallyFetched = stars.stream().map(Star::getSourceId).collect(Collectors.toList());
+		List<Long> wereNotFetched = new ArrayList<>();
+		List<Long> wereFetchedInError = new ArrayList<>();
+
+		retrievedIds.forEach((id) -> {
+			if (!actuallyFetched.contains(id)) {
+				wereNotFetched.add(id);
+			}
+		});
+		actuallyFetched.forEach((id) -> {
+			if (!retrievedIds.contains(id)) {
+				wereFetchedInError.add(id);
+			}
+		});
+
+		Assert.assertEquals(wereNotFetched.toString(), 0, wereNotFetched.size());
+//		Assert.assertEquals(shouldHaveBeenFetched, wereFetched);
+	}
+
+	private void fetchStar(List<Star> stars, long id) {
+		RestTemplate restTemplate = new RestTemplate();
+
+		final Star star = restTemplate.getForObject(servers.get(Math.toIntExact(stars.size() % servers.size())) + "/star/" + id, Star.class);
+		stars.add(star);
+
+		final long l1 = fetchedStars.getAndIncrement();
+		if (l1 % 50 == 0) {
+			logger.info("Current count {}", l1);
+		}
+	}
+
+	private void fetchIds(BlockingDeque<Long> idQueue) {
+		RestTemplate restTemplate = new RestTemplate();
+		for (;;) {
+			final int j = pageNum.getAndIncrement();
+			if (j * PAGE_SIZE >= MAX) {
+				logger.info("Finished fetching new ids");
+				return;
+			}
+			final String url = pageUrl(j, PAGE_SIZE, servers.get(j % 3));
+			RequestEntity<String> requestEntity = new RequestEntity<>(HttpMethod.GET, URI.create(url));
+			ResponseEntity<RestResponsePage<Long>> pageResponse = restTemplate.exchange(requestEntity, new ParameterizedTypeReference<RestResponsePage<Long>>() {
+			});
+			final RestResponsePage<Long> body = pageResponse.getBody();
+//					final Page<Long> body = pageResponse.getBody();
+			logger.info("Fetched ids for page {} (which we think is {}), got {}", body.getNumber(), j, body.getNumberOfElements());
+			assertPrevious(previousRun, body);
+			currentRun.put(j, body.getContent());
+			for (Long l : body) {
+				try {
+					idQueue.putLast(l);
+				} catch (InterruptedException e) {
+					logger.error("Interrupted");
+				}
+			}
+		}
 	}
 
 	private void assertPrevious(Map<Integer, List<Long>> previousRun, Page<Long> body) {
 		if (!previousRun.isEmpty()) {
-			Assert.assertTrue("Previous run does not contain page " + body.getNumber(),
-					previousRun.containsKey(body.getNumber()));
+//			Assert.assertTrue("Previous run does not contain page " + body.getNumber(),
+//					previousRun.containsKey(body.getNumber()));
 
 			Assert.assertEquals("Previous run (" + body.getNumber() + ")and current run do not match",
 					previousRun.get(body.getNumber()),
