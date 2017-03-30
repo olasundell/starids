@@ -80,7 +80,7 @@ public class HazelclientTest {
 //					final Page<Long> body = pageResponse.getBody();
 					logger.info("Fetched ids for page {} (which we think is {}), got {}", body.getNumber(), j, body.getNumberOfElements());
 					assertPrevious(previousRun, body);
-					currentRun.put(j, new ArrayList<>());
+					currentRun.put(j, body.getContent());
 					body.forEach(idQueue::offerLast);
 				}
 			});
