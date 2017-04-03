@@ -1,30 +1,75 @@
 version: "3"
 
 services:
+  cassandra:
+    image: cassandra:latest
+    container_name: cassandra
+    command: /bin/bash -c "sleep 1 && echo ' -- Pausing to let system catch up ... -->' && /docker-entrypoint.sh cassandra -f"
+    deploy:
+    networks:
+      - db
+    ports:
+      - 7000
+      - 7001
+      - 7199
+      - 9042
+      - 9160
+
+  postgresql:
+    image: postgres:9.6
+    networks:
+      - db
+    volumes:
+      - /Users/olasundell/code/own/hystrix-test/docker-ubuntu/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
+#      - /vagrant/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
+#      - /postgres:/var/lib/postgresql
+    ports:
+      - 5432:5432
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
+#    environment:
+#      POSTGRES_PASSWORD=gaia
+#      POSTGRES_USER=gaia
+
+
   hcastserver:
-    image: hcast-server
+    image: localhost:5000/hcast-server
     ports:
       - 5700-5800
     networks:
       - server
+      - db
+    depends_on:
+      - cassandra
     deploy:
       replicas: 2
+      update_config:
+        parallelism: 1
+        delay: 30s
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
       interval: 30s
       timeout: 10s
       retries: 6
+
   hcastclient:
-    image: hcast-client
+    image: localhost:5000/hcast-client
     networks:
       - client
       - server
+      - db
     depends_on:
       - hcastserver
+      - postgresql
     ports:
       - 8080:8080
     deploy:
       replicas: 3
+      update_config:
+        parallelism: 1
+        delay: 30s
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
       interval: 30s
@@ -35,4 +80,6 @@ networks:
   client:
     driver: overlay
   server:
+    driver: overlay
+  db:
     driver: overlay

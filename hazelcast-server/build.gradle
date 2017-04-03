@@ -9,6 +9,11 @@ buildscript {
 }
 apply plugin: 'docker'
 
+ext {
+	dockerRegistry = '192.168.99.100:5000'
+	dockerApp = 'hcast-server'
+}
+
 dependencies {
 	compile project(":hazelcast-common")
 	compile project(path: ":common", configuration: "testCompile")

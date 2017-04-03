@@ -44,3 +44,11 @@ endpoints:
     enabled: true
     path: /jolokia
     sensitive: true
+
+
+---
+
+spring:
+  profiles: docker
+  datasource:
+    url: jdbc:postgresql://postgresql/gaia

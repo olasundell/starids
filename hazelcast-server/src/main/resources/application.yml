@@ -1,5 +1,7 @@
 server.port: 8010
 
+
+
 endpoints:
   autoconfig.enabled: false
   beans.enabled: false
@@ -16,13 +18,27 @@ endpoints:
     enabled: true
     path: /jolokia
     sensitive: true
+
 spring:
   data:
     cassandra:
-      keyspace-name: star
       schema-action: CREATE_IF_NOT_EXISTS
+      keyspace-name: star
     jpa:
       repositories:
         enabled: false
 
+---
+spring:
+  profiles: docker
+  data:
+    cassandra:
+      contact-points: "cassandra"
 
+
+#---
+#spring:
+#  profiles: hazelcastmanager
+#
+#hazelcast:
+#  manager-url:

@@ -56,7 +56,7 @@ public class HazelclientTest {
 	private static final int PAGE_SIZE = 20;
 	private static final int MAX = 100_000;
 
-	@Before
+//	@Before
 	public void setUp() throws Exception {
 		previousRun = readPreviousRun();
 		currentRun = new ConcurrentHashMap<>();
@@ -64,14 +64,14 @@ public class HazelclientTest {
 		fetchedStars = new AtomicLong(0);
 	}
 
-	@Test
+//	@Test
 	public void shouldTestLinkedQueue() throws InterruptedException {
 		final BlockingDeque<Long> blockingDeque = new LinkedBlockingDeque<>(1);
 		blockingDeque.offerLast(1L);
 		Assert.assertFalse(blockingDeque.offerLast(1L, 100, TimeUnit.MILLISECONDS));
 	}
 
-	@Test
+//	@Test
 	public void shouldGetStars() throws InterruptedException, IOException {
 		final List<Star> stars = new CopyOnWriteArrayList<>();
 		final BlockingDeque<Long> idQueue = new LinkedBlockingDeque<>(PAGE_SIZE * 5);
@@ -184,7 +184,7 @@ public class HazelclientTest {
 		}
 	}
 
-	@Test
+//	@Test
 	public void shouldReadPreviousRun() throws IOException {
 		Map<Integer, List<Long>> map = readPreviousRun();
 		Assert.assertNotNull(map);
@@ -213,7 +213,7 @@ public class HazelclientTest {
 		}
 	}
 
-	@Test
+//	@Test
 	public void checkPaging() {
 		logger.info("About to get star pages");
 		final RestResponsePage<Long> body = getBody(servers.get(0));

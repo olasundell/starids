@@ -51,7 +51,7 @@ public class HazelcastClusterConfig {
 //				.addListenerConfig(new ListenerConfig())
 		;
 		config.getGroupConfig().setName("hcast").setPassword("foobar");
-		config.getManagementCenterConfig().setUrl("http://localhost:8099/mancenter").setEnabled(true);
+//		config.getManagementCenterConfig().setUrl("http://localhost:8099/mancenter").setEnabled(true);
 //		config.setSecurityConfig(new SecurityConfig().setEnabled(false));
 //		config.setSecurityConfig(new SecurityConfig().)
 		config.getMapConfigs().put("stars", starMap);
@@ -105,12 +105,12 @@ public class HazelcastClusterConfig {
 	@Profile("docker")
 	@Primary
 	List<String> membersDocker() {
-		return Collections.singletonList("172.18.0.1-5");
+//		return Collections.singletonList("172.18.0.1-5");
+		return Collections.singletonList("hcastserver");
 	}
 
 	@Bean(name = "members")
 	List<String> membersLocal() {
-//		return Collections.singletonList(environment.getProperty("spring.cloud.client.ipAddress", "127.0.0.1"));
 		return Collections.singletonList("127.0.0.1");
 	}
 

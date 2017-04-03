@@ -1,6 +1,6 @@
 CREATE TABLE gaia_source ( 
 	solution_id bigint,
-	source_id bigint,
+	source_id bigint primary key,
 	random_index bigint,
 	ref_epoch double precision,
 	ra double precision,
